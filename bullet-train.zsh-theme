@@ -29,6 +29,7 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     virtualenv
     nvm
     aws
+    docker
     go
     elixir
     git
@@ -116,6 +117,18 @@ fi
 if [ ! -n "${BULLETTRAIN_AWS_PREFIX+1}" ]; then
   BULLETTRAIN_AWS_PREFIX="☁️"
 fi
+
+# DOCKER
+if [ ! -n "${BULLETTRAIN_DOCKER_BG+1}" ]; then
+  BULLETTRAIN_DOCKER_BG=red
+fi
+if [ ! -n "${BULLETTRAIN_DOCKER_FG+1}" ]; then
+  BULLETTRAIN_DOCKER_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_DOCKER_PREFIX+1}" ]; then
+  BULLETTRAIN_DOCKER_PREFIX="𝔇"
+fi
+
 
 # RUBY
 if [ ! -n "${BULLETTRAIN_RUBY_BG+1}" ]; then
@@ -550,6 +563,18 @@ prompt_aws() {
   if [[ -n "$AWS_PROFILE" ]]; then
     prompt_segment $BULLETTRAIN_AWS_BG $BULLETTRAIN_AWS_FG $BULLETTRAIN_AWS_PREFIX$spaces$AWS_PROFILE
   fi
+}
+
+#DOCKER Profile
+prompt_docker() {
+  local spaces="  "
+
+  if [[ -n "$DOCKER_HOST" ]]; then
+    prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX$spaces$DOCKER_HOST
+  else
+    prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX${spaces}localhost
+  fi
+
 }
 
 # SCREEN Session
