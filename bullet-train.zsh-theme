@@ -571,8 +571,6 @@ prompt_docker() {
 
   if [[ -n "$DOCKER_HOST" ]]; then
     prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX$spaces$DOCKER_HOST
-  else
-    prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX${spaces}localhost
   fi
 
 }
