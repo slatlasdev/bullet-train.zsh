@@ -21,15 +21,16 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     time
     status
     custom
-    context
+    # context
     dir
     screen
     perl
+    java
     ruby
     virtualenv
     nvm
     aws
-    docker
+    docker    
     go
     elixir
     git
@@ -116,6 +117,17 @@ if [ ! -n "${BULLETTRAIN_AWS_FG+1}" ]; then
 fi
 if [ ! -n "${BULLETTRAIN_AWS_PREFIX+1}" ]; then
   BULLETTRAIN_AWS_PREFIX="☁️"
+fi
+
+# Java
+if [ ! -n "${BULLETTRAIN_JAVA_BG+1}" ]; then
+  BULLETTRAIN_JAVA_BG=green
+fi
+if [ ! -n "${BULLETTRAIN_JAVA_FG+1}" ]; then
+  BULLETTRAIN_JAVA_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_JAVA_PREFIX+1}" ]; then
+  BULLETTRAIN_JAVA_PREFIX="☕"
 fi
 
 # DOCKER
@@ -558,16 +570,25 @@ prompt_nvm() {
 
 #AWS Profile
 prompt_aws() {
-  local spaces="  "
+  local spaces=" "
 
   if [[ -n "$AWS_PROFILE" ]]; then
     prompt_segment $BULLETTRAIN_AWS_BG $BULLETTRAIN_AWS_FG $BULLETTRAIN_AWS_PREFIX$spaces$AWS_PROFILE
   fi
 }
 
+prompt_java() {
+  local spaces=" "
+
+  if [[ -n "$JAVA_HOME" ]]; then
+    local version=$(echo $JAVA_HOME | perl -pe 's/^.*jdk(.*?)\.jdk.*$/$1/')
+    prompt_segment $BULLETTRAIN_JAVA_BG $BULLETTRAIN_JAVA_FG $BULLETTRAIN_JAVA_PREFIX$spaces$version
+  fi
+}
+
 #DOCKER Profile
 prompt_docker() {
-  local spaces="  "
+  local spaces=" "
 
   if [[ -n "$DOCKER_HOST" ]]; then
     prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX$spaces$DOCKER_HOST
