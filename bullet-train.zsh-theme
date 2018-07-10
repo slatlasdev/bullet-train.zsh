@@ -30,7 +30,8 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     virtualenv
     nvm
     aws
-    docker    
+    docker
+    heroku    
     go
     elixir
     git
@@ -139,6 +140,17 @@ if [ ! -n "${BULLETTRAIN_DOCKER_FG+1}" ]; then
 fi
 if [ ! -n "${BULLETTRAIN_DOCKER_PREFIX+1}" ]; then
   BULLETTRAIN_DOCKER_PREFIX="𝔇"
+fi
+
+# Heroku
+if [ ! -n "${BULLETTRAIN_HEROKU_BG+1}" ]; then
+  BULLETTRAIN_HEROKU_BG=blue
+fi
+if [ ! -n "${BULLETTRAIN_HEROKU_FG+1}" ]; then
+  BULLETTRAIN_HEROKU_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_HEROKU_PREFIX+1}" ]; then
+  BULLETTRAIN_HEROKU_PREFIX="🚀"
 fi
 
 
@@ -594,6 +606,14 @@ prompt_docker() {
     prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX$spaces$DOCKER_HOST
   fi
 
+}
+
+prompt_heroku() {
+  local spaces=" "
+
+  if [[ -n "$HEROKU_APP" ]]; then
+    prompt_segment $BULLETTRAIN_HEROKU_BG $BULLETTRAIN_HEROKU_FG $BULLETTRAIN_HEROKU_PREFIX$spaces$HEROKU_APP
+  fi
 }
 
 # SCREEN Session
