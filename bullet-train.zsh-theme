@@ -31,7 +31,8 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     nvm
     aws
     docker
-    heroku    
+    heroku
+    k8s
     go
     elixir
     git
@@ -153,6 +154,16 @@ if [ ! -n "${BULLETTRAIN_HEROKU_PREFIX+1}" ]; then
   BULLETTRAIN_HEROKU_PREFIX="🚀"
 fi
 
+# k8s
+if [ ! -n "${BULLETTRAIN_K8S_BG+1}" ]; then
+  BULLETTRAIN_K8S_BG=red
+fi
+if [ ! -n "${BULLETTRAIN_K8S_FG+1}" ]; then
+  BULLETTRAIN_K8S_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_K8S_PREFIX+1}" ]; then
+  BULLETTRAIN_K8S_PREFIX="💫"
+fi
 
 # RUBY
 if [ ! -n "${BULLETTRAIN_RUBY_BG+1}" ]; then
@@ -335,7 +346,6 @@ if [ ! -n "${BULLETTRAIN_EXEC_TIME_FG+1}" ]; then
   BULLETTRAIN_EXEC_TIME_FG=black
 fi
 
-
 # ------------------------------------------------------------------------------
 # SEGMENT DRAWING
 # A few functions to make it easy and re-usable to draw segmented prompts
@@ -389,12 +399,12 @@ prompt_context() {
 }
 
 # Based on http://stackoverflow.com/a/32164707/3859566
-function displaytime {
+function displaytime() {
   local T=$1
-  local D=$((T/60/60/24))
-  local H=$((T/60/60%24))
-  local M=$((T/60%60))
-  local S=$((T%60))
+  local D=$((T / 60 / 60 / 24))
+  local H=$((T / 60 / 60 % 24))
+  local M=$((T / 60 % 60))
+  local S=$((T % 60))
   [[ $D > 0 ]] && printf '%dd' $D
   [[ $H > 0 ]] && printf '%dh' $H
   [[ $M > 0 ]] && printf '%dm' $M
@@ -403,11 +413,11 @@ function displaytime {
 
 # Prompt previous command execution time
 preexec() {
-  cmd_timestamp=`date +%s`
+  cmd_timestamp=$(date +%s)
 }
 
 precmd() {
-  local stop=`date +%s`
+  local stop=$(date +%s)
   local start=${cmd_timestamp:-$stop}
   let BULLETTRAIN_last_exec_duration=$stop-$start
   cmd_timestamp=''
@@ -457,7 +467,7 @@ prompt_hg() {
   local rev status
   if $(hg id >/dev/null 2>&1); then
     if $(hg prompt >/dev/null 2>&1); then
-      if [[ $(hg prompt "{status|unknown}") = "?" ]]; then
+      if [[ $(hg prompt "{status|unknown}") == "?" ]]; then
         # if files are not added
         prompt_segment red white
         st='±'
@@ -513,13 +523,13 @@ prompt_dir() {
 # RBENV: shows current ruby version active in the shell; also with non-global gemsets if any is active
 # CHRUBY: shows current ruby version active in the shell
 prompt_ruby() {
-  if command -v rvm-prompt > /dev/null 2>&1; then
+  if command -v rvm-prompt >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX" $(rvm-prompt i v g)"
-  elif command -v chruby > /dev/null 2>&1; then
+  elif command -v chruby >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX"  $(chruby | sed -n -e 's/ \* //p')"
-  elif command -v rbenv > /dev/null 2>&1; then
+  elif command -v rbenv >/dev/null 2>&1; then
     current_gemset() {
-      echo "$(rbenv gemset active 2&>/dev/null | sed -e 's/ global$//')"
+      echo "$(rbenv gemset active 2 &>/dev/null | sed -e 's/ global$//')"
     }
 
     if [[ -n $(current_gemset) ]]; then
@@ -532,7 +542,7 @@ prompt_ruby() {
 
 # ELIXIR
 prompt_elixir() {
-  if command -v elixir > /dev/null 2>&1; then
+  if command -v elixir >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_ELIXIR_BG $BULLETTRAIN_ELIXIR_FG $BULLETTRAIN_ELIXIR_PREFIX" $(elixir -v | tail -n 1 | awk '{print $2}')"
   fi
 }
@@ -540,7 +550,7 @@ prompt_elixir() {
 # PERL
 # PLENV: shows current PERL version active in the shell
 prompt_perl() {
-  if command -v plenv > /dev/null 2>&1; then
+  if command -v plenv >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_PERL_BG $BULLETTRAIN_PERL_FG $BULLETTRAIN_PERL_PREFIX" $(plenv version | sed -e 's/ (set.*$//')"
   fi
 }
@@ -550,7 +560,7 @@ prompt_go() {
   setopt extended_glob
   #if [[ (-f *.go(#qN) || -d Godeps || -f glide.yaml) ]]; then
   if ls *.go >/dev/null 2>&1; then
-    if command -v go > /dev/null 2>&1; then
+    if command -v go >/dev/null 2>&1; then
       prompt_segment $BULLETTRAIN_GO_BG $BULLETTRAIN_GO_FG $BULLETTRAIN_GO_PREFIX" $(go version | grep --colour=never -oE '[[:digit:]].[[:digit:]]+(.[[:digit:]]+)?')"
     fi
   fi
@@ -561,7 +571,7 @@ prompt_virtualenv() {
   local virtualenv_path="$VIRTUAL_ENV"
   if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
     prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(basename $virtualenv_path)"
-  elif which pyenv &> /dev/null; then
+  elif which pyenv &>/dev/null; then
     prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
   fi
 }
@@ -594,7 +604,7 @@ prompt_java() {
   local spaces=" "
 
   if [[ -n "$JAVA_HOME" ]]; then
-    local version=`echo -e $JAVA_HOME | sed -e "s@$(echo -e $HOME)/@@" | sed -e "s@/Contents/Home@@"`
+    local version=$(echo -e $JAVA_HOME | sed -e "s@$(echo -e $HOME)/@@" | sed -e "s@/Contents/Home@@")
     prompt_segment $BULLETTRAIN_JAVA_BG $BULLETTRAIN_JAVA_FG $BULLETTRAIN_JAVA_PREFIX$spaces$version
   fi
 }
@@ -615,6 +625,13 @@ prompt_heroku() {
   if [[ -n "$HEROKU_APP" ]]; then
     prompt_segment $BULLETTRAIN_HEROKU_BG $BULLETTRAIN_HEROKU_FG $BULLETTRAIN_HEROKU_PREFIX$spaces$HEROKU_APP
   fi
+}
+
+prompt_k8s() {
+  local spaces=" "
+  local context="$(kubectl config current-context)"
+
+  prompt_segment $BULLETTRAIN_K8S_BG $BULLETTRAIN_K8S_FG $BULLETTRAIN_K8S_PREFIX$spaces$context
 }
 
 # SCREEN Session
@@ -687,8 +704,7 @@ prompt_line_sep() {
 
 build_prompt() {
   RETVAL=$?
-  for segment in $BULLETTRAIN_PROMPT_ORDER
-  do
+  for segment in $BULLETTRAIN_PROMPT_ORDER; do
     prompt_$segment
   done
   prompt_end
