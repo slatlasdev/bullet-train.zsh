@@ -594,7 +594,7 @@ prompt_java() {
   local spaces=" "
 
   if [[ -n "$JAVA_HOME" ]]; then
-    local version=$(echo $JAVA_HOME | perl -pe 's/^.*jdk(.*?)\.jdk.*$/$1/')
+    local version=`echo -e $JAVA_HOME | sed -e "s@$(echo -e $HOME)/@@" | sed -e "s@/Contents/Home@@"`
     prompt_segment $BULLETTRAIN_JAVA_BG $BULLETTRAIN_JAVA_FG $BULLETTRAIN_JAVA_PREFIX$spaces$version
   fi
 }
