@@ -32,9 +32,8 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     aws
     docker
     heroku
-    kubeconfig
     kubecontext
-    go
+    # go
     elixir
     git
     hg
@@ -155,26 +154,15 @@ if [ ! -n "${BULLETTRAIN_HEROKU_PREFIX+1}" ]; then
   BULLETTRAIN_HEROKU_PREFIX="🚀"
 fi
 
-# KUBECONFIG
-if [ ! -n "${BULLETTRAIN_KUBECONFIG_BG+1}" ]; then
-  BULLETTRAIN_KUBECONFIG_BG=blue
-fi
-if [ ! -n "${BULLETTRAIN_KUBECONFIG_FG+1}" ]; then
-  BULLETTRAIN_KUBECONFIG_FG=white
-fi
-if [ ! -n "${BULLETTRAIN_KUBECONFIG_PREFIX+1}" ]; then
-  BULLETTRAIN_KUBECONFIG_PREFIX="📂"
-fi
-
 # KUBECONTEXT
 if [ ! -n "${BULLETTRAIN_KUBECONTEXT_BG+1}" ]; then
-  BULLETTRAIN_KUBECONTEXT_BG=green
+  BULLETTRAIN_KUBECONTEXT_BG=blue
 fi
 if [ ! -n "${BULLETTRAIN_KUBECONTEXT_FG+1}" ]; then
   BULLETTRAIN_KUBECONTEXT_FG=white
 fi
 if [ ! -n "${BULLETTRAIN_KUBECONTEXT_PREFIX+1}" ]; then
-  BULLETTRAIN_KUBECONTEXT_PREFIX="🗂 "
+  BULLETTRAIN_KUBECONTEXT_PREFIX="K8S"
 fi
 
 # RUBY
@@ -640,20 +628,10 @@ prompt_heroku() {
   fi
 }
 
-prompt_kubeconfig() {
-  local spaces=" "
-  local context="$KUBECONFIG"
-
-  [[ -z "$context" ]] && context="$HOME/.kube/config"
-
-  context="k-config $(basename $context)"
-
-  prompt_segment $BULLETTRAIN_KUBECONFIG_BG $BULLETTRAIN_KUBECONFIG_FG $BULLETTRAIN_KUBECONFIG_PREFIX$spaces$context
-}
-
 prompt_kubecontext() {
   local spaces=" "
-  local context="k-context $(kubectl config current-context)"
+  local context="$(kubectl config current-context 2>/dev/null)"
+  [[ -z "$context" ]] && context="<UNDEF>"
 
   prompt_segment $BULLETTRAIN_KUBECONTEXT_BG $BULLETTRAIN_KUBECONTEXT_FG $BULLETTRAIN_KUBECONTEXT_PREFIX$spaces$context
 }
