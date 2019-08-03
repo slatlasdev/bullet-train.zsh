@@ -633,6 +633,11 @@ prompt_kubecontext() {
   local context="$(kubectl config current-context 2>/dev/null)"
   [[ -z "$context" ]] && context="<UNDEF>"
 
+  local namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+  [[ -z "$namespace" ]] && namespace="default"
+
+  context="$context:$namespace"
+
   prompt_segment $BULLETTRAIN_KUBECONTEXT_BG $BULLETTRAIN_KUBECONTEXT_FG $BULLETTRAIN_KUBECONTEXT_PREFIX$spaces$context
 }
 
