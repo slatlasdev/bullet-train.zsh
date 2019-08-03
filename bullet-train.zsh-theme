@@ -18,7 +18,7 @@ VIRTUAL_ENV_DISABLE_PROMPT=true
 # Define order and content of prompt
 if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
   BULLETTRAIN_PROMPT_ORDER=(
-    context
+    # context
     time
     status
     custom
@@ -27,12 +27,13 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     perl
     java
     ruby
-    virtualenv
+    # virtualenv
     nvm
     aws
     docker
     heroku
-    k8s
+    kubeconfig
+    kubecontext
     go
     elixir
     git
@@ -101,21 +102,21 @@ fi
 
 # NVM
 if [ ! -n "${BULLETTRAIN_NVM_BG+1}" ]; then
-  BULLETTRAIN_NVM_BG=green
+  BULLETTRAIN_NVM_BG=yellow
 fi
 if [ ! -n "${BULLETTRAIN_NVM_FG+1}" ]; then
-  BULLETTRAIN_NVM_FG=white
+  BULLETTRAIN_NVM_FG=black
 fi
 if [ ! -n "${BULLETTRAIN_NVM_PREFIX+1}" ]; then
-  BULLETTRAIN_NVM_PREFIX="⬡ "
+  BULLETTRAIN_NVM_PREFIX="Node "
 fi
 
 # AWS
 if [ ! -n "${BULLETTRAIN_AWS_BG+1}" ]; then
-  BULLETTRAIN_AWS_BG=yellow
+  BULLETTRAIN_AWS_BG=blue
 fi
 if [ ! -n "${BULLETTRAIN_AWS_FG+1}" ]; then
-  BULLETTRAIN_AWS_FG=black
+  BULLETTRAIN_AWS_FG=white
 fi
 if [ ! -n "${BULLETTRAIN_AWS_PREFIX+1}" ]; then
   BULLETTRAIN_AWS_PREFIX="☁️"
@@ -145,7 +146,7 @@ fi
 
 # Heroku
 if [ ! -n "${BULLETTRAIN_HEROKU_BG+1}" ]; then
-  BULLETTRAIN_HEROKU_BG=blue
+  BULLETTRAIN_HEROKU_BG=red
 fi
 if [ ! -n "${BULLETTRAIN_HEROKU_FG+1}" ]; then
   BULLETTRAIN_HEROKU_FG=white
@@ -154,15 +155,26 @@ if [ ! -n "${BULLETTRAIN_HEROKU_PREFIX+1}" ]; then
   BULLETTRAIN_HEROKU_PREFIX="🚀"
 fi
 
-# k8s
-if [ ! -n "${BULLETTRAIN_K8S_BG+1}" ]; then
-  BULLETTRAIN_K8S_BG=red
+# KUBECONFIG
+if [ ! -n "${BULLETTRAIN_KUBECONFIG_BG+1}" ]; then
+  BULLETTRAIN_KUBECONFIG_BG=blue
 fi
-if [ ! -n "${BULLETTRAIN_K8S_FG+1}" ]; then
-  BULLETTRAIN_K8S_FG=white
+if [ ! -n "${BULLETTRAIN_KUBECONFIG_FG+1}" ]; then
+  BULLETTRAIN_KUBECONFIG_FG=white
 fi
-if [ ! -n "${BULLETTRAIN_K8S_PREFIX+1}" ]; then
-  BULLETTRAIN_K8S_PREFIX="💫"
+if [ ! -n "${BULLETTRAIN_KUBECONFIG_PREFIX+1}" ]; then
+  BULLETTRAIN_KUBECONFIG_PREFIX="📂"
+fi
+
+# KUBECONTEXT
+if [ ! -n "${BULLETTRAIN_KUBECONTEXT_BG+1}" ]; then
+  BULLETTRAIN_KUBECONTEXT_BG=green
+fi
+if [ ! -n "${BULLETTRAIN_KUBECONTEXT_FG+1}" ]; then
+  BULLETTRAIN_KUBECONTEXT_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_KUBECONTEXT_PREFIX+1}" ]; then
+  BULLETTRAIN_KUBECONTEXT_PREFIX="🗂 "
 fi
 
 # RUBY
@@ -605,6 +617,7 @@ prompt_java() {
 
   if [[ -n "$JAVA_HOME" ]]; then
     local version=$(echo -e $JAVA_HOME | sed -e "s@$(echo -e $HOME)/@@" | sed -e "s@/Contents/Home@@")
+    version=$(basename $version)
     prompt_segment $BULLETTRAIN_JAVA_BG $BULLETTRAIN_JAVA_FG $BULLETTRAIN_JAVA_PREFIX$spaces$version
   fi
 }
@@ -627,11 +640,22 @@ prompt_heroku() {
   fi
 }
 
-prompt_k8s() {
+prompt_kubeconfig() {
   local spaces=" "
-  local context="$(kubectl config current-context)"
+  local context="$KUBECONFIG"
 
-  prompt_segment $BULLETTRAIN_K8S_BG $BULLETTRAIN_K8S_FG $BULLETTRAIN_K8S_PREFIX$spaces$context
+  [[ -z "$context" ]] && context="$HOME/.kube/config"
+
+  context="k-config $(basename $context)"
+
+  prompt_segment $BULLETTRAIN_KUBECONFIG_BG $BULLETTRAIN_KUBECONFIG_FG $BULLETTRAIN_KUBECONFIG_PREFIX$spaces$context
+}
+
+prompt_kubecontext() {
+  local spaces=" "
+  local context="k-context $(kubectl config current-context)"
+
+  prompt_segment $BULLETTRAIN_KUBECONTEXT_BG $BULLETTRAIN_KUBECONTEXT_FG $BULLETTRAIN_KUBECONTEXT_PREFIX$spaces$context
 }
 
 # SCREEN Session
