@@ -27,7 +27,7 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     perl
     java
     ruby
-    # virtualenv
+    virtualenv
     nvm
     aws
     docker
@@ -90,7 +90,7 @@ fi
 
 # VIRTUALENV
 if [ ! -n "${BULLETTRAIN_VIRTUALENV_BG+1}" ]; then
-  BULLETTRAIN_VIRTUALENV_BG=yellow
+  BULLETTRAIN_VIRTUALENV_BG=blue
 fi
 if [ ! -n "${BULLETTRAIN_VIRTUALENV_FG+1}" ]; then
   BULLETTRAIN_VIRTUALENV_FG=white
@@ -112,7 +112,7 @@ fi
 
 # AWS
 if [ ! -n "${BULLETTRAIN_AWS_BG+1}" ]; then
-  BULLETTRAIN_AWS_BG=blue
+  BULLETTRAIN_AWS_BG=green
 fi
 if [ ! -n "${BULLETTRAIN_AWS_FG+1}" ]; then
   BULLETTRAIN_AWS_FG=white
