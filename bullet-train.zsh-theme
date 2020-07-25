@@ -32,7 +32,8 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     aws
     docker
     heroku
-    kubecontext
+    digitalocean
+    #    kubecontext
     # go
     elixir
     git
@@ -152,6 +153,17 @@ if [ ! -n "${BULLETTRAIN_HEROKU_FG+1}" ]; then
 fi
 if [ ! -n "${BULLETTRAIN_HEROKU_PREFIX+1}" ]; then
   BULLETTRAIN_HEROKU_PREFIX="🚀"
+fi
+
+# DigitalOcean
+if [ ! -n "${BULLETTRAIN_DIGITALOCEAN_BG+1}" ]; then
+  BULLETTRAIN_DIGITALOCEAN_BG=blue
+fi
+if [ ! -n "${BULLETTRAIN_DIGITALOCEAN_FG+1}" ]; then
+  BULLETTRAIN_DIGITALOCEAN_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_DIGITALOCEAN_PREFIX+1}" ]; then
+  BULLETTRAIN_DIGITALOCEAN_PREFIX="🌊"
 fi
 
 # KUBECONTEXT
@@ -625,6 +637,14 @@ prompt_heroku() {
 
   if [[ -n "$HEROKU_APP" ]]; then
     prompt_segment $BULLETTRAIN_HEROKU_BG $BULLETTRAIN_HEROKU_FG $BULLETTRAIN_HEROKU_PREFIX$spaces$HEROKU_APP
+  fi
+}
+
+prompt_digitalocean() {
+  local spaces=" "
+
+  if [[ -n "$DIGITALOCEAN_TEAM" ]]; then
+    prompt_segment $BULLETTRAIN_DIGITALOCEAN_BG $BULLETTRAIN_DIGITALOCEAN_FG $BULLETTRAIN_DIGITALOCEAN_PREFIX$spaces$DIGITALOCEAN_TEAM
   fi
 }
 
