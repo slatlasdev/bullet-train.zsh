@@ -28,7 +28,7 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     java
     ruby
     virtualenv
-    nvm
+    #nvm
     aws
     docker
     heroku
@@ -102,10 +102,10 @@ fi
 
 # NVM
 if [ ! -n "${BULLETTRAIN_NVM_BG+1}" ]; then
-  BULLETTRAIN_NVM_BG=yellow
+  BULLETTRAIN_NVM_BG=black
 fi
 if [ ! -n "${BULLETTRAIN_NVM_FG+1}" ]; then
-  BULLETTRAIN_NVM_FG=black
+  BULLETTRAIN_NVM_FG=white
 fi
 if [ ! -n "${BULLETTRAIN_NVM_PREFIX+1}" ]; then
   BULLETTRAIN_NVM_PREFIX="Node "
@@ -235,7 +235,7 @@ if [ ! -n "${BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR+1}" ]; then
   BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR=yellow
 fi
 if [ ! -n "${BULLETTRAIN_GIT_BG+1}" ]; then
-  BULLETTRAIN_GIT_BG=white
+  BULLETTRAIN_GIT_BG=green
 fi
 if [ ! -n "${BULLETTRAIN_GIT_FG+1}" ]; then
   BULLETTRAIN_GIT_FG=black
@@ -452,27 +452,23 @@ prompt_custom() {
 
 # Git
 prompt_git() {
-  if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" == "1" ]]; then
+  if ! git -C . rev-parse 2>/dev/null; then
     return
   fi
+  
+  local branch isdirty
+  branch="$(git rev-parse --abbrev-ref HEAD)"
+  isdirty=""
 
-  local ref dirty mode repo_path git_prompt
-  repo_path=$(git rev-parse --git-dir 2>/dev/null)
-
-  if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    if [[ $BULLETTRAIN_GIT_COLORIZE_DIRTY == true && -n $(git status --porcelain --ignore-submodules) ]]; then
-      BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR
-      BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_FG_COLOR
-    fi
-    prompt_segment $BULLETTRAIN_GIT_BG $BULLETTRAIN_GIT_FG
-
-    eval git_prompt=${BULLETTRAIN_GIT_PROMPT_CMD}
-    if [[ $BULLETTRAIN_GIT_EXTENDED == true ]]; then
-      echo -n ${git_prompt}$(git_prompt_status)
-    else
-      echo -n ${git_prompt}
-    fi
+  if [[ -n $(git status --porcelain --ignore-submodules) ]]; then
+    BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR
+    BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_FG_COLOR
+    isdirty=' *'
   fi
+
+  prompt_segment $BULLETTRAIN_GIT_BG $BULLETTRAIN_GIT_FG
+
+  echo -n " ${branch}${isdirty}"
 }
 
 prompt_hg() {
