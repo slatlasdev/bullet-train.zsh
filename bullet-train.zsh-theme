@@ -452,12 +452,12 @@ prompt_custom() {
 
 # Git
 prompt_git() {
-  if ! git -C . rev-parse 2>/dev/null; then
+  if ! git -C . rev-parse &>/dev/null; then
     return
   fi
   
   local branch isdirty
-  branch="$(git rev-parse --abbrev-ref HEAD)"
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
   isdirty=""
 
   if [[ -n $(git status --porcelain --ignore-submodules) ]]; then
