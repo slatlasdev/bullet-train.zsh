@@ -25,7 +25,7 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     dir
     screen
     perl
-    java
+    #java
     ruby
     virtualenv
     #nvm
@@ -36,6 +36,7 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     #    kubecontext
     # go
     elixir
+    conda
     git
     hg
     cmd_exec_time
@@ -98,6 +99,17 @@ if [ ! -n "${BULLETTRAIN_VIRTUALENV_FG+1}" ]; then
 fi
 if [ ! -n "${BULLETTRAIN_VIRTUALENV_PREFIX+1}" ]; then
   BULLETTRAIN_VIRTUALENV_PREFIX=🐍
+fi
+
+# CONDA
+if [ ! -n "${BULLETTRAIN_CONDA_BG+1}" ]; then
+  BULLETTRAIN_CONDA_BG=red
+fi
+if [ ! -n "${BULLETTRAIN_CONDA_FG+1}" ]; then
+  BULLETTRAIN_CONDA_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_CONDA_PREFIX+1}" ]; then
+  BULLETTRAIN_CONDA_PREFIX=🐍
 fi
 
 # NVM
@@ -450,12 +462,19 @@ prompt_custom() {
   [[ -n "${custom_msg}" ]] && prompt_segment $BULLETTRAIN_CUSTOM_BG $BULLETTRAIN_CUSTOM_FG "${custom_msg}"
 }
 
+prompt_conda() {
+  # skip for default conda
+  [[ "$CONDA_DEFAULT_ENV" = "base" ]] && return
+
+  prompt_segment $BULLETTRAIN_CONDA_BG $BULLETTRAIN_CONDA_FG $BULLETTRAIN_CONDA_PREFIX$CONDA_DEFAULT_ENV
+}
+
 # Git
 prompt_git() {
   if ! git -C . rev-parse &>/dev/null; then
     return
   fi
-  
+
   local branch isdirty
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
   isdirty=""
