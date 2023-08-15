@@ -1,3 +1,4 @@
+# set -x
 # README
 #
 # In order for this theme to render correctly, you will need a
@@ -18,7 +19,7 @@ VIRTUAL_ENV_DISABLE_PROMPT=true
 # Define order and content of prompt
 if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
   BULLETTRAIN_PROMPT_ORDER=(
-    # context
+    context
     time
     status
     custom
@@ -33,8 +34,8 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     docker
     heroku
     digitalocean
-    #    kubecontext
-    # go
+    kubecontext
+    go
     rust
     elixir
     conda
@@ -278,6 +279,12 @@ fi
 if [ ! -n "${BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR+1}" ]; then
   BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR=yellow
 fi
+if [ ! -n "${BULLETTRAIN_GIT_COLORIZE_CLEAN_FG_COLOR+1}" ]; then
+  BULLETTRAIN_GIT_COLORIZE_CLEAN_FG_COLOR=blue
+fi
+if [ ! -n "${BULLETTRAIN_GIT_COLORIZE_CLEAN_BG_COLOR+1}" ]; then
+  BULLETTRAIN_GIT_COLORIZE_CLEAN_BG_COLOR=white
+fi
 if [ ! -n "${BULLETTRAIN_GIT_BG+1}" ]; then
   BULLETTRAIN_GIT_BG=white
 fi
@@ -503,6 +510,9 @@ prompt_conda() {
 
 # Git
 prompt_git() {
+  if [[ "$(command git config --get oh-my-zsh.hide-info 2>/dev/null)" == "1" ]]; then
+    return
+  fi
   if ! git -C . rev-parse &>/dev/null; then
     return
   fi
@@ -511,10 +521,14 @@ prompt_git() {
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
   isdirty=""
 
-  if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" != "1" && -n $(git status --porcelain --ignore-submodules) ]]; then
-    BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR
-    BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_FG_COLOR
-    isdirty=' *'
+  if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" != "1" ]]; then
+    BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_CLEAN_BG_COLOR
+    BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_CLEAN_FG_COLOR
+    if [[ -n $(git status --porcelain --ignore-submodules) ]]; then
+        BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR
+        BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_FG_COLOR
+        isdirty=' *'
+    fi
   fi
 
   prompt_segment $BULLETTRAIN_GIT_BG $BULLETTRAIN_GIT_FG
@@ -660,8 +674,13 @@ prompt_virtualenv() {
 
 # NVM: Node version manager
 prompt_nvm() {
+  if [[ ! -f .nvmrc ]]; then
+    return
+  fi
   local nvm_prompt
-  if type nvm >/dev/null 2>&1; then
+  if [[ -f .nvmrc ]]; then
+    nvm_prompt=$(<.nvmrc)
+  elif type nvm >/dev/null 2>&1; then
     nvm_prompt=$(nvm current 2>/dev/null)
     [[ "${nvm_prompt}x" == "x" || "${nvm_prompt}" == "system" ]] && return
   elif type node >/dev/null 2>&1; then
@@ -685,7 +704,7 @@ prompt_aws() {
 prompt_java() {
   local spaces=" "
 
-  if [[ -n "$JAVA_HOME" ]]; then
+  if [[ -n "$JAVA_HOME" && -f .java-version ]]; then
     local version=$(echo -e $JAVA_HOME | sed -e "s@$(echo -e $HOME)/@@" | sed -e "s@/Contents/Home@@")
     version=$(basename $version)
     prompt_segment $BULLETTRAIN_JAVA_BG $BULLETTRAIN_JAVA_FG $BULLETTRAIN_JAVA_PREFIX$spaces$version
