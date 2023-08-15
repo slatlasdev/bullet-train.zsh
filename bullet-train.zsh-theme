@@ -18,20 +18,26 @@ VIRTUAL_ENV_DISABLE_PROMPT=true
 # Define order and content of prompt
 if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
   BULLETTRAIN_PROMPT_ORDER=(
+    # context
     time
     status
     custom
-    context
     dir
     screen
     perl
+    java
     ruby
     virtualenv
     nvm
     aws
-    go
+    docker
+    heroku
+    digitalocean
+    #    kubecontext
+    # go
     rust
     elixir
+    conda
     git
     hg
     cmd_exec_time
@@ -87,7 +93,7 @@ fi
 
 # VIRTUALENV
 if [ ! -n "${BULLETTRAIN_VIRTUALENV_BG+1}" ]; then
-  BULLETTRAIN_VIRTUALENV_BG=yellow
+  BULLETTRAIN_VIRTUALENV_BG=blue
 fi
 if [ ! -n "${BULLETTRAIN_VIRTUALENV_FG+1}" ]; then
   BULLETTRAIN_VIRTUALENV_FG=white
@@ -96,26 +102,92 @@ if [ ! -n "${BULLETTRAIN_VIRTUALENV_PREFIX+1}" ]; then
   BULLETTRAIN_VIRTUALENV_PREFIX=🐍
 fi
 
+# CONDA
+if [ ! -n "${BULLETTRAIN_CONDA_BG+1}" ]; then
+  BULLETTRAIN_CONDA_BG=red
+fi
+if [ ! -n "${BULLETTRAIN_CONDA_FG+1}" ]; then
+  BULLETTRAIN_CONDA_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_CONDA_PREFIX+1}" ]; then
+  BULLETTRAIN_CONDA_PREFIX=🐍
+fi
+
 # NVM
 if [ ! -n "${BULLETTRAIN_NVM_BG+1}" ]; then
-  BULLETTRAIN_NVM_BG=green
+  BULLETTRAIN_NVM_BG=black
 fi
 if [ ! -n "${BULLETTRAIN_NVM_FG+1}" ]; then
   BULLETTRAIN_NVM_FG=white
 fi
 if [ ! -n "${BULLETTRAIN_NVM_PREFIX+1}" ]; then
-  BULLETTRAIN_NVM_PREFIX="⬡ "
+  BULLETTRAIN_NVM_PREFIX="Node "
 fi
 
 # AWS
 if [ ! -n "${BULLETTRAIN_AWS_BG+1}" ]; then
-  BULLETTRAIN_AWS_BG=yellow
+  BULLETTRAIN_AWS_BG=green
 fi
 if [ ! -n "${BULLETTRAIN_AWS_FG+1}" ]; then
-  BULLETTRAIN_AWS_FG=black
+  BULLETTRAIN_AWS_FG=white
 fi
 if [ ! -n "${BULLETTRAIN_AWS_PREFIX+1}" ]; then
   BULLETTRAIN_AWS_PREFIX="☁️"
+fi
+
+# Java
+if [ ! -n "${BULLETTRAIN_JAVA_BG+1}" ]; then
+  BULLETTRAIN_JAVA_BG=green
+fi
+if [ ! -n "${BULLETTRAIN_JAVA_FG+1}" ]; then
+  BULLETTRAIN_JAVA_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_JAVA_PREFIX+1}" ]; then
+  BULLETTRAIN_JAVA_PREFIX="☕"
+fi
+
+# DOCKER
+if [ ! -n "${BULLETTRAIN_DOCKER_BG+1}" ]; then
+  BULLETTRAIN_DOCKER_BG=red
+fi
+if [ ! -n "${BULLETTRAIN_DOCKER_FG+1}" ]; then
+  BULLETTRAIN_DOCKER_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_DOCKER_PREFIX+1}" ]; then
+  BULLETTRAIN_DOCKER_PREFIX="𝔇"
+fi
+
+# Heroku
+if [ ! -n "${BULLETTRAIN_HEROKU_BG+1}" ]; then
+  BULLETTRAIN_HEROKU_BG=red
+fi
+if [ ! -n "${BULLETTRAIN_HEROKU_FG+1}" ]; then
+  BULLETTRAIN_HEROKU_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_HEROKU_PREFIX+1}" ]; then
+  BULLETTRAIN_HEROKU_PREFIX="🚀"
+fi
+
+# DigitalOcean
+if [ ! -n "${BULLETTRAIN_DIGITALOCEAN_BG+1}" ]; then
+  BULLETTRAIN_DIGITALOCEAN_BG=blue
+fi
+if [ ! -n "${BULLETTRAIN_DIGITALOCEAN_FG+1}" ]; then
+  BULLETTRAIN_DIGITALOCEAN_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_DIGITALOCEAN_PREFIX+1}" ]; then
+  BULLETTRAIN_DIGITALOCEAN_PREFIX="🌊"
+fi
+
+# KUBECONTEXT
+if [ ! -n "${BULLETTRAIN_KUBECONTEXT_BG+1}" ]; then
+  BULLETTRAIN_KUBECONTEXT_BG=blue
+fi
+if [ ! -n "${BULLETTRAIN_KUBECONTEXT_FG+1}" ]; then
+  BULLETTRAIN_KUBECONTEXT_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_KUBECONTEXT_PREFIX+1}" ]; then
+  BULLETTRAIN_KUBECONTEXT_PREFIX="\u2388"
 fi
 
 # RUBY
@@ -207,7 +279,7 @@ if [ ! -n "${BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR+1}" ]; then
   BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR=yellow
 fi
 if [ ! -n "${BULLETTRAIN_GIT_BG+1}" ]; then
-  BULLETTRAIN_GIT_BG=white
+  BULLETTRAIN_GIT_BG=green
 fi
 if [ ! -n "${BULLETTRAIN_GIT_FG+1}" ]; then
   BULLETTRAIN_GIT_FG=black
@@ -330,7 +402,6 @@ if [ ! -n "${BULLETTRAIN_EXEC_TIME_FG+1}" ]; then
   BULLETTRAIN_EXEC_TIME_FG=black
 fi
 
-
 # ------------------------------------------------------------------------------
 # SEGMENT DRAWING
 # A few functions to make it easy and re-usable to draw segmented prompts
@@ -384,12 +455,12 @@ prompt_context() {
 }
 
 # Based on http://stackoverflow.com/a/32164707/3859566
-function displaytime {
+function displaytime() {
   local T=$1
-  local D=$((T/60/60/24))
-  local H=$((T/60/60%24))
-  local M=$((T/60%60))
-  local S=$((T%60))
+  local D=$((T / 60 / 60 / 24))
+  local H=$((T / 60 / 60 % 24))
+  local M=$((T / 60 % 60))
+  local S=$((T % 60))
   [[ $D > 0 ]] && printf '%dd' $D
   [[ $H > 0 ]] && printf '%dh' $H
   [[ $M > 0 ]] && printf '%dm' $M
@@ -398,11 +469,11 @@ function displaytime {
 
 # Prompt previous command execution time
 preexec() {
-  cmd_timestamp=`date +%s`
+  cmd_timestamp=$(date +%s)
 }
 
 precmd() {
-  local stop=`date +%s`
+  local stop=$(date +%s)
   local start=${cmd_timestamp:-$stop}
   let BULLETTRAIN_last_exec_duration=$stop-$start
   cmd_timestamp=''
@@ -423,36 +494,39 @@ prompt_custom() {
   [[ -n "${custom_msg}" ]] && prompt_segment $BULLETTRAIN_CUSTOM_BG $BULLETTRAIN_CUSTOM_FG "${custom_msg}"
 }
 
+prompt_conda() {
+  # skip for default conda
+  [[ "$CONDA_DEFAULT_ENV" = "base" ]] && return
+
+  prompt_segment $BULLETTRAIN_CONDA_BG $BULLETTRAIN_CONDA_FG $BULLETTRAIN_CONDA_PREFIX$CONDA_DEFAULT_ENV
+}
+
 # Git
 prompt_git() {
-  if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" == "1" ]]; then
+  if ! git -C . rev-parse &>/dev/null; then
     return
   fi
 
-  local ref dirty mode repo_path git_prompt
-  repo_path=$(git rev-parse --git-dir 2>/dev/null)
+  local branch isdirty
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  isdirty=""
 
-  if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    if [[ $BULLETTRAIN_GIT_COLORIZE_DIRTY == true && -n $(git status --porcelain --ignore-submodules) ]]; then
-      BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR
-      BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_FG_COLOR
-    fi
-    prompt_segment $BULLETTRAIN_GIT_BG $BULLETTRAIN_GIT_FG
-
-    eval git_prompt=${BULLETTRAIN_GIT_PROMPT_CMD}
-    if [[ $BULLETTRAIN_GIT_EXTENDED == true ]]; then
-      echo -n ${git_prompt}$(git_prompt_status)
-    else
-      echo -n ${git_prompt}
-    fi
+  if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" != "1" && -n $(git status --porcelain --ignore-submodules) ]]; then
+    BULLETTRAIN_GIT_BG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR
+    BULLETTRAIN_GIT_FG=$BULLETTRAIN_GIT_COLORIZE_DIRTY_FG_COLOR
+    isdirty=' *'
   fi
+
+  prompt_segment $BULLETTRAIN_GIT_BG $BULLETTRAIN_GIT_FG
+
+  echo -n " ${branch}${isdirty}"
 }
 
 prompt_hg() {
   local rev status
   if $(hg id >/dev/null 2>&1); then
     if $(hg prompt >/dev/null 2>&1); then
-      if [[ $(hg prompt "{status|unknown}") = "?" ]]; then
+      if [[ $(hg prompt "{status|unknown}") == "?" ]]; then
         # if files are not added
         prompt_segment red white
         st='±'
@@ -508,13 +582,13 @@ prompt_dir() {
 # RBENV: shows current ruby version active in the shell; also with non-global gemsets if any is active
 # CHRUBY: shows current ruby version active in the shell
 prompt_ruby() {
-  if command -v rvm-prompt > /dev/null 2>&1; then
+  if command -v rvm-prompt >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX" $(rvm-prompt i v g)"
-  elif command -v chruby > /dev/null 2>&1; then
+  elif command -v chruby >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX"  $(chruby | sed -n -e 's/ \* //p')"
-  elif command -v rbenv > /dev/null 2>&1; then
+  elif command -v rbenv >/dev/null 2>&1; then
     current_gemset() {
-      echo "$(rbenv gemset active 2&>/dev/null | sed -e 's/ global$//')"
+      echo "$(rbenv gemset active 2 &>/dev/null | sed -e 's/ global$//')"
     }
 
     if [[ -n $(current_gemset) ]]; then
@@ -527,7 +601,7 @@ prompt_ruby() {
 
 # ELIXIR
 prompt_elixir() {
-  if command -v elixir > /dev/null 2>&1; then
+  if command -v elixir >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_ELIXIR_BG $BULLETTRAIN_ELIXIR_FG $BULLETTRAIN_ELIXIR_PREFIX" $(elixir -v | tail -n 1 | awk '{print $2}')"
   fi
 }
@@ -535,7 +609,7 @@ prompt_elixir() {
 # PERL
 # PLENV: shows current PERL version active in the shell
 prompt_perl() {
-  if command -v plenv > /dev/null 2>&1; then
+  if command -v plenv >/dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_PERL_BG $BULLETTRAIN_PERL_FG $BULLETTRAIN_PERL_PREFIX" $(plenv version | sed -e 's/ (set.*$//')"
   fi
 }
@@ -601,11 +675,60 @@ prompt_nvm() {
 
 #AWS Profile
 prompt_aws() {
-  local spaces="  "
+  local spaces=" "
 
   if [[ -n "$AWS_PROFILE" ]]; then
     prompt_segment $BULLETTRAIN_AWS_BG $BULLETTRAIN_AWS_FG $BULLETTRAIN_AWS_PREFIX$spaces$AWS_PROFILE
   fi
+}
+
+prompt_java() {
+  local spaces=" "
+
+  if [[ -n "$JAVA_HOME" ]]; then
+    local version=$(echo -e $JAVA_HOME | sed -e "s@$(echo -e $HOME)/@@" | sed -e "s@/Contents/Home@@")
+    version=$(basename $version)
+    prompt_segment $BULLETTRAIN_JAVA_BG $BULLETTRAIN_JAVA_FG $BULLETTRAIN_JAVA_PREFIX$spaces$version
+  fi
+}
+
+#DOCKER Profile
+prompt_docker() {
+  local spaces=" "
+
+  if [[ -n "$DOCKER_HOST" ]]; then
+    prompt_segment $BULLETTRAIN_DOCKER_BG $BULLETTRAIN_DOCKER_FG $BULLETTRAIN_DOCKER_PREFIX$spaces$DOCKER_HOST
+  fi
+
+}
+
+prompt_heroku() {
+  local spaces=" "
+
+  if [[ -n "$HEROKU_APP" ]]; then
+    prompt_segment $BULLETTRAIN_HEROKU_BG $BULLETTRAIN_HEROKU_FG $BULLETTRAIN_HEROKU_PREFIX$spaces$HEROKU_APP
+  fi
+}
+
+prompt_digitalocean() {
+  local spaces=" "
+
+  if [[ -n "$DIGITALOCEAN_TEAM" ]]; then
+    prompt_segment $BULLETTRAIN_DIGITALOCEAN_BG $BULLETTRAIN_DIGITALOCEAN_FG $BULLETTRAIN_DIGITALOCEAN_PREFIX$spaces$DIGITALOCEAN_TEAM
+  fi
+}
+
+prompt_kubecontext() {
+  local spaces=" "
+  local context="$(kubectl config current-context 2>/dev/null)"
+  [[ -z "$context" ]] && context="<UNDEF>"
+
+  local namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+  [[ -z "$namespace" ]] && namespace="default"
+
+  context="$context:$namespace"
+
+  prompt_segment $BULLETTRAIN_KUBECONTEXT_BG $BULLETTRAIN_KUBECONTEXT_FG $BULLETTRAIN_KUBECONTEXT_PREFIX$spaces$context
 }
 
 # SCREEN Session
@@ -678,8 +801,7 @@ prompt_line_sep() {
 
 build_prompt() {
   RETVAL=$?
-  for segment in $BULLETTRAIN_PROMPT_ORDER
-  do
+  for segment in $BULLETTRAIN_PROMPT_ORDER; do
     prompt_$segment
   done
   prompt_end
