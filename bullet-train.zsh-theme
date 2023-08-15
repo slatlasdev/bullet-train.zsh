@@ -115,21 +115,21 @@ fi
 
 # NVM
 if [ ! -n "${BULLETTRAIN_NVM_BG+1}" ]; then
-  BULLETTRAIN_NVM_BG=black
+  BULLETTRAIN_NVM_BG=green
 fi
 if [ ! -n "${BULLETTRAIN_NVM_FG+1}" ]; then
   BULLETTRAIN_NVM_FG=white
 fi
 if [ ! -n "${BULLETTRAIN_NVM_PREFIX+1}" ]; then
-  BULLETTRAIN_NVM_PREFIX="Node "
+  BULLETTRAIN_NVM_PREFIX="⬡ "
 fi
 
 # AWS
 if [ ! -n "${BULLETTRAIN_AWS_BG+1}" ]; then
-  BULLETTRAIN_AWS_BG=green
+  BULLETTRAIN_AWS_BG=yellow
 fi
 if [ ! -n "${BULLETTRAIN_AWS_FG+1}" ]; then
-  BULLETTRAIN_AWS_FG=white
+  BULLETTRAIN_AWS_FG=black
 fi
 if [ ! -n "${BULLETTRAIN_AWS_PREFIX+1}" ]; then
   BULLETTRAIN_AWS_PREFIX="☁️"
@@ -137,7 +137,7 @@ fi
 
 # Java
 if [ ! -n "${BULLETTRAIN_JAVA_BG+1}" ]; then
-  BULLETTRAIN_JAVA_BG=green
+  BULLETTRAIN_JAVA_BG=red
 fi
 if [ ! -n "${BULLETTRAIN_JAVA_FG+1}" ]; then
   BULLETTRAIN_JAVA_FG=white
@@ -148,7 +148,7 @@ fi
 
 # DOCKER
 if [ ! -n "${BULLETTRAIN_DOCKER_BG+1}" ]; then
-  BULLETTRAIN_DOCKER_BG=red
+  BULLETTRAIN_DOCKER_BG=blue
 fi
 if [ ! -n "${BULLETTRAIN_DOCKER_FG+1}" ]; then
   BULLETTRAIN_DOCKER_FG=white
@@ -279,7 +279,7 @@ if [ ! -n "${BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR+1}" ]; then
   BULLETTRAIN_GIT_COLORIZE_DIRTY_BG_COLOR=yellow
 fi
 if [ ! -n "${BULLETTRAIN_GIT_BG+1}" ]; then
-  BULLETTRAIN_GIT_BG=green
+  BULLETTRAIN_GIT_BG=white
 fi
 if [ ! -n "${BULLETTRAIN_GIT_FG+1}" ]; then
   BULLETTRAIN_GIT_FG=black
@@ -469,11 +469,11 @@ function displaytime() {
 
 # Prompt previous command execution time
 preexec() {
-  cmd_timestamp=$(date +%s)
+  cmd_timestamp=`date +%s`
 }
 
 precmd() {
-  local stop=$(date +%s)
+  local stop=`date +%s`
   local start=${cmd_timestamp:-$stop}
   let BULLETTRAIN_last_exec_duration=$stop-$start
   cmd_timestamp=''
@@ -582,13 +582,13 @@ prompt_dir() {
 # RBENV: shows current ruby version active in the shell; also with non-global gemsets if any is active
 # CHRUBY: shows current ruby version active in the shell
 prompt_ruby() {
-  if command -v rvm-prompt >/dev/null 2>&1; then
+  if command -v rvm-prompt > /dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX" $(rvm-prompt i v g)"
-  elif command -v chruby >/dev/null 2>&1; then
+  elif command -v chruby > /dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX"  $(chruby | sed -n -e 's/ \* //p')"
-  elif command -v rbenv >/dev/null 2>&1; then
+  elif command -v rbenv > /dev/null 2>&1; then
     current_gemset() {
-      echo "$(rbenv gemset active 2 &>/dev/null | sed -e 's/ global$//')"
+      echo "$(rbenv gemset active 2&>/dev/null | sed -e 's/ global$//')"
     }
 
     if [[ -n $(current_gemset) ]]; then
@@ -601,7 +601,7 @@ prompt_ruby() {
 
 # ELIXIR
 prompt_elixir() {
-  if command -v elixir >/dev/null 2>&1; then
+  if command -v elixir > /dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_ELIXIR_BG $BULLETTRAIN_ELIXIR_FG $BULLETTRAIN_ELIXIR_PREFIX" $(elixir -v | tail -n 1 | awk '{print $2}')"
   fi
 }
@@ -609,7 +609,7 @@ prompt_elixir() {
 # PERL
 # PLENV: shows current PERL version active in the shell
 prompt_perl() {
-  if command -v plenv >/dev/null 2>&1; then
+  if command -v plenv > /dev/null 2>&1; then
     prompt_segment $BULLETTRAIN_PERL_BG $BULLETTRAIN_PERL_FG $BULLETTRAIN_PERL_PREFIX" $(plenv version | sed -e 's/ (set.*$//')"
   fi
 }
@@ -675,7 +675,7 @@ prompt_nvm() {
 
 #AWS Profile
 prompt_aws() {
-  local spaces=" "
+  local spaces="  "
 
   if [[ -n "$AWS_PROFILE" ]]; then
     prompt_segment $BULLETTRAIN_AWS_BG $BULLETTRAIN_AWS_FG $BULLETTRAIN_AWS_PREFIX$spaces$AWS_PROFILE
